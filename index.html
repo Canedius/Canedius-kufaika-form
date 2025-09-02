@@ -1,0 +1,103 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Оприбуткування продукції Kufaika</title>
+  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+  <div class="form-container bg-white shadow-lg rounded-lg p-6">
+    <h2 class="text-2xl font-bold mb-6 text-center">Оприбуткування продукції Kufaika</h2>
+    <form id="productForm" class="space-y-4">
+      <div>
+        <label for="productType" class="block text-sm font-medium text-gray-700">Тип продукції</label>
+        <select id="productType" name="productType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+          <option value="">Виберіть тип продукції</option>
+          <option value="Футболка Premium Kufaika">Футболка Premium Kufaika</option>
+          <option value="Футболка OVERSIZE Kufaika">Футболка OVERSIZE Kufaika</option>
+          <option value="Футболка Lightness Kufaika">Футболка Lightness Kufaika</option>
+          <option value="Футболка Oversize Kufaika (двонитка)">Футболка Oversize Kufaika (двонитка)</option>
+          <option value="Футболка Relaxed Kufaika">Футболка Relaxed Kufaika</option>
+          <option value="Світшот Легкий Kufaika Unisex">Світшот Легкий Kufaika Unisex</option>
+          <option value="Світшот Утеплений Kufaika Unisex">Світшот Утеплений Kufaika Unisex</option>
+          <option value="Худі Утеплений Kufaika Unisex">Худі Утеплений Kufaika Unisex</option>
+          <option value="Худі Легкий Kufaika Unisex">Худі Легкий Kufaika Unisex</option>
+          <option value="Еко сумка Kufaika, саржа (38х40 см, 240 г/м², 100% бавовна)">Еко сумка Kufaika, саржа (38х40 см, 240 г/м², 100% бавовна)</option>
+          <option value="Шопери Kufaika в Кроях">Шопери Kufaika в Кроях</option>
+        </select>
+      </div>
+
+      <div id="colorSection" class="hidden">
+        <label for="color" class="block text-sm font-medium text-gray-700">Колір</label>
+        <select id="color" name="color" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+          <option value="">Виберіть колір</option>
+        </select>
+      </div>
+
+      <div id="sizeQuantitySection" class="hidden space-y-4">
+        <div id="sizeQuantity1" class="flex space-x-4 items-end">
+          <div class="w-1/2 size-field">
+            <label for="size1" class="block text-sm font-medium text-gray-700">Розмір 1</label>
+            <select id="size1" name="size1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+              <option value="">Виберіть розмір</option>
+            </select>
+          </div>
+          <div class="w-1/2">
+            <label for="quantity1" class="block text-sm font-medium text-gray-700">Кількість 1</label>
+            <input type="number" id="quantity1" name="quantity1" min="0" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+          </div>
+        </div>
+      </div>
+
+      <div id="addMoreSection" class="hidden">
+        <button type="button" id="addMore" class="add-button bg-gray-800 text-white px-4 py-2 rounded-md" disabled>Додати ще товар</button>
+      </div>
+
+      <button type="submit" id="submitButton" class="submit-button w-full bg-indigo-600 text-white px-4 py-2 rounded-md opacity-50" disabled>Відправити</button>
+    </form>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
