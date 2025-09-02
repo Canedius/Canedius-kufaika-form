@@ -260,7 +260,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
   }
 
   try {
-    const response = await fetch('https://pngstudio.app.n8n.cloud/form-test/2a47e62b-3c34-4aff-9334-bf0fd7743466', {
+    const response = await fetch('https://pngstudio.app.n8n.cloud/webhook-test/e4c02ccb-ee94-4355-a839-d0f8736f0229', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
