@@ -1,24 +1,143 @@
-.hidden { display: none; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f3f4f6;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
 .form-container {
   max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 20px auto;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+h2 {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 24px;
+  color: #1f2937;
+}
+
+.form-group, .size-quantity-group {
+  margin-bottom: 16px;
+}
+
+.size-quantity-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: nowrap; /* Запобігає перенесенню елементів */
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+select, input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease;
+}
+
+select:focus, input[type="number"]:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
 .add-button, .submit-button {
-  transition: all 0.3s ease;
-}
-.add-button:hover:not(:disabled), .submit-button:hover:not(:disabled) {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
   background-color: #1f2937;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 16px 0;
 }
+
+.add-button:hover:not(:disabled), .submit-button:hover:not(:disabled) {
+  background-color: #111827;
+}
+
 .add-button:disabled, .submit-button:disabled {
   background-color: #d1d5db;
   opacity: 0.5;
   cursor: not-allowed;
 }
-.delete-button {
-  transition: all 0.3s ease;
-  cursor: pointer;
+
+.submit-button {
+  width: 100%;
 }
+
+.delete-button {
+  flex-shrink: 0; /* Запобігає стисненню кнопки */
+  padding: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
 .delete-button:hover {
   color: #dc2626;
+}
+
+.delete-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+.size-field, .quantity-field {
+  flex: 1; /* Поля займають однакову ширину */
+}
+
+@media (max-width: 640px) {
+  .form-container {
+    padding: 16px;
+    margin: 10px;
+  }
+
+  .size-quantity-group {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .size-field, .quantity-field, .size-quantity-group > div {
+    width: 100%;
+  }
+
+  .delete-button {
+    align-self: flex-start; /* На мобільних пристроях кнопка видалення під полями */
+  }
 }

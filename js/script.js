@@ -53,7 +53,7 @@ function getSelectedSizes() {
   return selectedSizes;
 }
 
-// Функція для оновлення опцій розмірів
+// Функція для оновлення опцій розмірів і відображення кількості
 function updateSizeOptions() {
   const selectedProduct = productType.value;
   const isEcoBagOrShopper = selectedProduct === ecoBag || selectedProduct === shoppers;
@@ -68,15 +68,15 @@ function updateSizeOptions() {
     if (isEcoBagOrShopper) {
       select.disabled = true;
       select.parentElement.classList.add('hidden');
-      select.closest('.flex').querySelector('input[name^="quantity"]').disabled = false;
+      select.closest('.size-quantity-group').querySelector('.quantity-field').classList.remove('hidden');
+      select.closest('.size-quantity-group').querySelector('input[name^="quantity"]').disabled = false;
       return;
     }
 
     select.disabled = false;
     select.parentElement.classList.remove('hidden');
-    select.closest('.flex').querySelector('input[name^="quantity"]').disabled = false;
+    select.closest('.size-quantity-group').querySelector('input[name^="quantity"]').disabled = false;
 
-    // Виключаємо розміри, уже вибрані в попередніх полях
     sizes.filter(size => !selectedSizes.includes(size) || size === currentValue).forEach(size => {
       const option = document.createElement('option');
       option.value = size;
@@ -86,6 +86,14 @@ function updateSizeOptions() {
 
     if (currentValue && sizes.includes(currentValue)) {
       select.value = currentValue;
+    }
+
+    // Показуємо поле кількості, якщо розмір вибрано
+    const quantityField = select.closest('.size-quantity-group').querySelector('.quantity-field');
+    if (currentValue && !isEcoBagOrShopper) {
+      quantityField.classList.remove('hidden');
+    } else if (!isEcoBagOrShopper) {
+      quantityField.classList.add('hidden');
     }
   });
 }
@@ -118,7 +126,7 @@ function checkAddMoreButton() {
   if (isEcoBagOrShopper) {
     addMoreSection.classList.add('hidden');
     addMoreButton.disabled = true;
-  } else if (productType.value && (productType.value !== shoppers ? color && size1 && quantity1 > 0 : quantity1 > 0)) {
+  } else if (productType.value && color && size1 && quantity1 > 0) {
     addMoreSection.classList.remove('hidden');
     addMoreButton.disabled = false;
   } else {
@@ -129,18 +137,18 @@ function checkAddMoreButton() {
 
 // Показ/приховування секції кольору
 productType.addEventListener('change', () => {
-  sizeQuantityCount = 1; // Скидаємо лічильник
+  sizeQuantityCount = 1;
   sizeQuantitySection.innerHTML = `
-    <div id="sizeQuantity1" class="flex space-x-4 items-end">
-      <div class="w-1/2 size-field">
-        <label for="size1" class="block text-sm font-medium text-gray-700">Розмір 1</label>
-        <select id="size1" name="size1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+    <div id="sizeQuantity1" class="size-quantity-group">
+      <div class="size-field">
+        <label for="size1">Розмір 1</label>
+        <select id="size1" name="size1">
           <option value="">Виберіть розмір</option>
         </select>
       </div>
-      <div class="w-1/2">
-        <label for="quantity1" class="block text-sm font-medium text-gray-700">Кількість 1</label>
-        <input type="number" id="quantity1" name="quantity1" min="0" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+      <div class="quantity-field hidden">
+        <label for="quantity1">Кількість 1</label>
+        <input type="number" id="quantity1" name="quantity1" min="0" placeholder="0" required>
       </div>
     </div>
   `;
@@ -161,10 +169,16 @@ productType.addEventListener('change', () => {
   checkFormCompletion();
 });
 
-// Показ/приховування секції розмірів і кількості
+// Показ/приховування секції розмірів
 colorSelect.addEventListener('change', () => {
   if (colorSelect.value && productType.value !== shoppers) {
     sizeQuantitySection.classList.remove('hidden');
+    document.querySelector('#sizeQuantity1 .size-field').classList.remove('hidden');
+    if (productType.value === ecoBag) {
+      document.querySelector('#sizeQuantity1 .quantity-field').classList.remove('hidden');
+    } else {
+      document.querySelector('#sizeQuantity1 .quantity-field').classList.add('hidden');
+    }
     updateSizeOptions();
   } else {
     sizeQuantitySection.classList.add('hidden');
@@ -173,9 +187,21 @@ colorSelect.addEventListener('change', () => {
   checkFormCompletion();
 });
 
+// Показ/приховування поля кількості після вибору розміру
+sizeQuantitySection.addEventListener('change', (e) => {
+  if (e.target.matches('select[name^="size"]')) {
+    const quantityField = e.target.closest('.size-quantity-group').querySelector('.quantity-field');
+    if (e.target.value && productType.value !== ecoBag && productType.value !== shoppers) {
+      quantityField.classList.remove('hidden');
+    }
+    updateSizeOptions();
+    checkFormCompletion();
+  }
+});
+
 // Перевірка заповнення розміру та кількості
 sizeQuantitySection.addEventListener('input', () => {
-  updateSizeOptions(); // Оновлюємо розміри при зміні вибору
+  updateSizeOptions();
   checkFormCompletion();
 });
 
@@ -185,19 +211,19 @@ addMoreButton.addEventListener('click', () => {
     sizeQuantityCount++;
     const newSizeQuantity = document.createElement('div');
     newSizeQuantity.id = `sizeQuantity${sizeQuantityCount}`;
-    newSizeQuantity.className = 'flex space-x-4 items-end';
+    newSizeQuantity.className = 'size-quantity-group';
     newSizeQuantity.innerHTML = `
-      <div class="w-1/2 size-field">
-        <label for="size${sizeQuantityCount}" class="block text-sm font-medium text-gray-700">Розмір ${sizeQuantityCount}</label>
-        <select id="size${sizeQuantityCount}" name="size${sizeQuantityCount}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+      <div class="size-field">
+        <label for="size${sizeQuantityCount}">Розмір ${sizeQuantityCount}</label>
+        <select id="size${sizeQuantityCount}" name="size${sizeQuantityCount}">
           <option value="">Виберіть розмір</option>
         </select>
       </div>
-      <div class="w-1/2">
-        <label for="quantity${sizeQuantityCount}" class="block text-sm font-medium text-gray-700">Кількість ${sizeQuantityCount}</label>
-        <input type="number" id="quantity${sizeQuantityCount}" name="quantity${sizeQuantityCount}" min="0" placeholder="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" required>
+      <div class="quantity-field hidden">
+        <label for="quantity${sizeQuantityCount}">Кількість ${sizeQuantityCount}</label>
+        <input type="number" id="quantity${sizeQuantityCount}" name="quantity${sizeQuantityCount}" min="0" placeholder="0" required>
       </div>
-      <button type="button" class="delete-button p-2" onclick="this.parentElement.remove(); sizeQuantityCount--; checkFormCompletion();">
+      <button type="button" class="delete-button" onclick="this.parentElement.remove(); sizeQuantityCount--; checkFormCompletion();">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 6h18"></path>
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
