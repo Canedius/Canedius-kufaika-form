@@ -9,10 +9,10 @@
 <body>
   <div class="form-container">
     <h2>Оприбуткування продукції Kufaika</h2>
-    <form id="productForm">
+    <form id="productForm" role="form" aria-label="Форма оприбуткування продукції Kufaika">
       <div class="form-group">
         <label for="productType">Тип продукції</label>
-        <select id="productType" name="productType" required>
+        <select id="productType" name="productType" required aria-describedby="productType-help">
           <option value="">Виберіть тип продукції</option>
           <option value="Футболка Premium Kufaika">Футболка Premium Kufaika</option>
           <option value="Футболка OVERSIZE Kufaika">Футболка OVERSIZE Kufaika</option>
@@ -30,31 +30,39 @@
 
       <div id="colorSection" class="hidden">
         <label for="color">Колір</label>
-        <select id="color" name="color" required>
+        <select id="color" name="color" required aria-describedby="color-help">
           <option value="">Виберіть колір</option>
         </select>
+        <div id="color-help" class="sr-only">Виберіть колір продукції з доступних варіантів</div>
       </div>
 
-      <div id="sizeQuantitySection" class="hidden">
+      <div id="sizeQuantitySection" class="hidden" role="region" aria-label="Розміри та кількість">
         <div id="sizeQuantity1" class="size-quantity-group">
           <div class="size-field">
             <label for="size1">Розмір 1</label>
-            <select id="size1" name="size1">
+            <select id="size1" name="size1" aria-describedby="size1-help">
               <option value="">Виберіть розмір</option>
             </select>
+            <div id="size1-help" class="sr-only">Виберіть розмір продукції</div>
           </div>
           <div>
             <label for="quantity1">Кількість 1</label>
-            <input type="number" id="quantity1" name="quantity1" min="0" placeholder="0" required>
+            <input type="number" id="quantity1" name="quantity1" min="0" placeholder="0" required aria-describedby="quantity1-help">
+            <div id="quantity1-help" class="sr-only">Введіть кількість товару</div>
           </div>
         </div>
       </div>
 
       <div id="addMoreSection" class="hidden">
-        <button type="button" id="addMore" class="add-button" disabled>Додати ще товар</button>
+        <button type="button" id="addMore" class="add-button" disabled aria-describedby="addMore-help">Додати ще товар</button>
+        <div id="addMore-help" class="sr-only">Додайте ще один розмір і кількість для того ж продукту</div>
       </div>
 
-      <button type="submit" id="submitButton" class="submit-button" disabled>Відправити</button>
+      <button type="submit" id="submitButton" class="submit-button" disabled aria-describedby="submit-help">
+        <span id="submitText">Відправити</span>
+        <span id="loadingText" class="hidden" aria-hidden="true">Відправляю...</span>
+      </button>
+      <div id="submit-help" class="sr-only">Відправити форму з введеними даними</div>
     </form>
   </div>
 
