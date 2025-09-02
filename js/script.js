@@ -5,7 +5,99 @@ const sizeQuantitySection = document.getElementById('sizeQuantitySection');
 const addMoreSection = document.getElementById('addMoreSection');
 const addMoreButton = document.getElementById('addMore');
 const submitButton = document.getElementById('submitButton');
+const submitText = document.getElementById('submitText');
+const loadingText = document.getElementById('loadingText');
 let sizeQuantityCount = 1;
+
+// Message display functions
+function showMessage(message, type = 'success') {
+  // Remove any existing messages
+  const existingMessage = document.querySelector('.form-message');
+  if (existingMessage) {
+    existingMessage.remove();
+  }
+
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `form-message ${type}`;
+  messageDiv.textContent = message;
+  messageDiv.setAttribute('role', type === 'error' ? 'alert' : 'status');
+  messageDiv.setAttribute('aria-live', 'polite');
+  
+  const form = document.getElementById('productForm');
+  form.insertBefore(messageDiv, form.firstChild);
+  
+  // Auto-remove message after 5 seconds
+  setTimeout(() => {
+    if (messageDiv.parentNode) {
+      messageDiv.remove();
+    }
+  }, 5000);
+}
+
+function setLoadingState(isLoading) {
+  if (isLoading) {
+    submitButton.disabled = true;
+    submitButton.classList.add('loading');
+    submitText.classList.add('hidden');
+    loadingText.classList.remove('hidden');
+    
+    // Add spinner
+    const spinner = document.createElement('span');
+    spinner.className = 'loading-spinner';
+    spinner.setAttribute('aria-hidden', 'true');
+    loadingText.insertBefore(spinner, loadingText.firstChild);
+  } else {
+    submitButton.classList.remove('loading');
+    submitText.classList.remove('hidden');
+    loadingText.classList.add('hidden');
+    
+    // Remove spinner
+    const spinner = loadingText.querySelector('.loading-spinner');
+    if (spinner) {
+      spinner.remove();
+    }
+    
+    checkFormCompletion(); // Re-evaluate button state
+  }
+}
+
+function resetForm() {
+  // Reset the form
+  document.getElementById('productForm').reset();
+  
+  // Reset counters and visibility
+  sizeQuantityCount = 1;
+  
+  // Hide all sections
+  colorSection.classList.add('hidden');
+  sizeQuantitySection.classList.add('hidden');
+  addMoreSection.classList.add('hidden');
+  
+  // Reset size/quantity section to initial state
+  sizeQuantitySection.innerHTML = `
+    <div id="sizeQuantity1" class="size-quantity-group">
+      <div class="size-field">
+        <label for="size1">Розмір 1</label>
+        <select id="size1" name="size1" aria-describedby="size1-help">
+          <option value="">Виберіть розмір</option>
+        </select>
+        <div id="size1-help" class="sr-only">Виберіть розмір продукції</div>
+      </div>
+      <div>
+        <label for="quantity1">Кількість 1</label>
+        <input type="number" id="quantity1" name="quantity1" min="0" placeholder="0" required aria-describedby="quantity1-help">
+        <div id="quantity1-help" class="sr-only">Введіть кількість товару</div>
+      </div>
+    </div>
+  `;
+  
+  // Reset button states
+  submitButton.disabled = true;
+  addMoreButton.disabled = true;
+  
+  // Focus on first field
+  productType.focus();
+}
 
 const oversizeKufaikaSizes = ['XS/S', 'M/L', 'XL/XXL'];
 const standardSizes = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
@@ -142,13 +234,15 @@ productType.addEventListener('change', () => {
     <div id="sizeQuantity1" class="size-quantity-group">
       <div class="size-field">
         <label for="size1">Розмір 1</label>
-        <select id="size1" name="size1">
+        <select id="size1" name="size1" aria-describedby="size1-help">
           <option value="">Виберіть розмір</option>
         </select>
+        <div id="size1-help" class="sr-only">Виберіть розмір продукції</div>
       </div>
       <div class="quantity-field hidden">
         <label for="quantity1">Кількість 1</label>
-        <input type="number" id="quantity1" name="quantity1" min="0" placeholder="0" required>
+        <input type="number" id="quantity1" name="quantity1" min="0" placeholder="0" required aria-describedby="quantity1-help">
+        <div id="quantity1-help" class="sr-only">Введіть кількість товару</div>
       </div>
     </div>
   `;
@@ -215,16 +309,18 @@ addMoreButton.addEventListener('click', () => {
     newSizeQuantity.innerHTML = `
       <div class="size-field">
         <label for="size${sizeQuantityCount}">Розмір ${sizeQuantityCount}</label>
-        <select id="size${sizeQuantityCount}" name="size${sizeQuantityCount}">
+        <select id="size${sizeQuantityCount}" name="size${sizeQuantityCount}" aria-describedby="size${sizeQuantityCount}-help">
           <option value="">Виберіть розмір</option>
         </select>
+        <div id="size${sizeQuantityCount}-help" class="sr-only">Виберіть розмір продукції</div>
       </div>
       <div class="quantity-field hidden">
         <label for="quantity${sizeQuantityCount}">Кількість ${sizeQuantityCount}</label>
-        <input type="number" id="quantity${sizeQuantityCount}" name="quantity${sizeQuantityCount}" min="0" placeholder="0" required>
+        <input type="number" id="quantity${sizeQuantityCount}" name="quantity${sizeQuantityCount}" min="0" placeholder="0" required aria-describedby="quantity${sizeQuantityCount}-help">
+        <div id="quantity${sizeQuantityCount}-help" class="sr-only">Введіть кількість товару</div>
       </div>
-      <button type="button" class="delete-button" onclick="this.parentElement.remove(); sizeQuantityCount--; checkFormCompletion();">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="delete-button" onclick="this.parentElement.remove(); sizeQuantityCount--; checkFormCompletion();" aria-label="Видалити цей розмір та кількість">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M3 6h18"></path>
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
           <path d="M10 11v6"></path>
@@ -242,38 +338,65 @@ addMoreButton.addEventListener('click', () => {
   checkFormCompletion();
 });
 
-// Обробка відправлення форми
+// Enhanced form submission with better error handling and user feedback
 document.getElementById('productForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  
+  // Clear any existing messages
+  const existingMessage = document.querySelector('.form-message');
+  if (existingMessage) {
+    existingMessage.remove();
+  }
+  
+  setLoadingState(true);
+  
   const formData = new FormData(e.target);
   const data = {
     productType: formData.get('productType'),
     color: formData.get('color') || null,
     sizesAndQuantities: []
   };
+  
+  // Collect all size and quantity data
   for (let i = 1; i <= sizeQuantityCount; i++) {
     const size = formData.get(`size${i}`);
     const quantity = formData.get(`quantity${i}`);
     if (quantity && Number(quantity) > 0) {
-      data.sizesAndQuantities.push({ size: size || null, quantity: Number(quantity) });
+      data.sizesAndQuantities.push({ 
+        size: size || null, 
+        quantity: Number(quantity) 
+      });
     }
   }
 
   try {
     const response = await fetch('https://pngstudio.app.n8n.cloud/form-test/2a47e62b-3c34-4aff-9334-bf0fd7743466', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify(data)
     });
+    
     if (response.ok) {
       console.log('Form Data sent successfully:', data);
-      alert('Дані успішно відправлено!');
+      showMessage('✅ Дані успішно відправлено! Форма буде очищена через 3 секунди.', 'success');
+      
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        resetForm();
+      }, 3000);
+      
     } else {
-      console.error('Failed to send form data:', response.status);
-      alert('Помилка при відправленні даних.');
+      console.error('Failed to send form data:', response.status, response.statusText);
+      const errorText = await response.text().catch(() => 'Невідома помилка');
+      showMessage(`❌ Помилка при відправленні даних (${response.status}): ${errorText}`, 'error');
     }
   } catch (error) {
-    console.error('Error:', error);
-    alert('Помилка мережі. Спробуйте ще раз.');
+    console.error('Network error:', error);
+    showMessage('❌ Помилка мережі. Перевірте підключення до інтернету та спробуйте ще раз.', 'error');
+  } finally {
+    setLoadingState(false);
   }
 });
