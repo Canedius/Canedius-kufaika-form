@@ -23,7 +23,7 @@ const colorOptions = {
   default: ['Чорний(BK)', 'Білий(WH)', 'Темно-Синій', 'Бежевий (NU)', 'Олива (OG)', 'Сірий (GB)', 'Койот (KT)', 'Ніжно-рожевий (PK)', 'Сірий Грі (GF)', 'Хакі (KH)']
 };
 
-// Функція для оновлення опцій кольорів 123
+// Функція для оновлення опцій кольорів
 function updateColorOptions() {
   const selectedProduct = productType.value;
   if (selectedProduct === shoppers) {
@@ -245,7 +245,8 @@ addMoreButton.addEventListener('click', () => {
 // Обробка відправлення форми
 document.getElementById('productForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  const formData = new FormData(e.target);
+  const form = e.target;
+  const formData = new FormData(form);
   const data = {
     productType: formData.get('productType'),
     color: formData.get('color') || null,
@@ -260,7 +261,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
   }
 
   try {
-    const response = await fetch('https://pngstudio.app.n8n.cloud/webhook-test/90f3ef63-61a1-4a3c-a764-74bebf106bdc', {
+    const response = await fetch('https://pngstudio.app.n8n.cloud/webhook/90f3ef63-61a1-4a3c-a764-74bebf106bdc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -268,6 +269,10 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     if (response.ok) {
       console.log('Form Data sent successfully:', data);
       alert('Дані успішно відправлено!');
+      // Скидаємо форму
+      form.reset();
+      sizeQuantityCount = 1;
+      productType.dispatchEvent(new Event('change')); // Викликаємо подію для скидання стану
     } else {
       console.error('Failed to send form data:', {
         status: response.status,
