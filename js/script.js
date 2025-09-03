@@ -88,7 +88,6 @@ function updateSizeOptions() {
       select.value = currentValue;
     }
 
-    // Показуємо поле кількості, якщо розмір вибрано
     const quantityField = select.closest('.size-quantity-group').querySelector('.quantity-field');
     if (currentValue && !isEcoBagOrShopper) {
       quantityField.classList.remove('hidden');
@@ -104,7 +103,7 @@ function checkFormCompletion() {
   const isEcoBagOrShopper = selectedProduct === ecoBag || selectedProduct === shoppers;
   const color = colorSelect.value;
   const allFieldsFilled = productType.value && 
-    (selectedProduct === shoppers ? true : color) &&
+    (isEcoBagOrShopper ? true : color) && // Колір необов'язковий для шоперів і еко-сумки
     Array.from({ length: sizeQuantityCount }, (_, i) => {
       const size = document.getElementById(`size${i + 1}`)?.value;
       const quantity = Number(document.getElementById(`quantity${i + 1}`)?.value) || 0;
@@ -269,10 +268,9 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
     if (response.ok) {
       console.log('Form Data sent successfully:', data);
       alert('Дані успішно відправлено!');
-      // Скидаємо форму
       form.reset();
       sizeQuantityCount = 1;
-      productType.dispatchEvent(new Event('change')); // Викликаємо подію для скидання стану
+      productType.dispatchEvent(new Event('change'));
     } else {
       console.error('Failed to send form data:', {
         status: response.status,
