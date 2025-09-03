@@ -23,7 +23,7 @@ const colorOptions = {
   default: ['Чорний(BK)', 'Білий(WH)', 'Темно-Синій', 'Бежевий (NU)', 'Олива (OG)', 'Сірий (GB)', 'Койот (KT)', 'Ніжно-рожевий (PK)', 'Сірий Грі (GF)', 'Хакі (KH)']
 };
 
-// Функція для оновлення опцій кольорів
+// Функція для оновлення опцій кольорів 123
 function updateColorOptions() {
   const selectedProduct = productType.value;
   if (selectedProduct === shoppers) {
@@ -260,7 +260,7 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
   }
 
   try {
-    const response = await fetch('https://pngstudio.app.n8n.cloud/webhook-test/e4c02ccb-ee94-4355-a839-d0f8736f0229', {
+    const response = await fetch('https://pngstudio.app.n8n.cloud/webhook-test/90f3ef63-61a1-4a3c-a764-74bebf106bdc', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -269,11 +269,19 @@ document.getElementById('productForm').addEventListener('submit', async (e) => {
       console.log('Form Data sent successfully:', data);
       alert('Дані успішно відправлено!');
     } else {
-      console.error('Failed to send form data:', response.status);
-      alert('Помилка при відправленні даних.');
+      console.error('Failed to send form data:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url
+      });
+      alert(`Помилка при відправленні даних: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Network Error:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
     alert('Помилка мережі. Спробуйте ще раз.');
   }
 });
